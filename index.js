@@ -68,7 +68,17 @@ app.post('/api/persons', (request, response) => {
 
   if (!body.name) {
     return response.status(400).json({ 
-      error: 'name missing' 
+      error: 'name is missing' 
+    })
+  }
+  if (!body.number) {
+    return response.status(400).json({ 
+      error: 'number is missing' 
+    })
+  }
+  if (persons.filter(person => person.name === body.name).length !== 0) {
+    return response.status(400).json({ 
+      error: 'name must be unique' 
     })
   }
   
