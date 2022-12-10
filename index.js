@@ -21,19 +21,21 @@ app.get('/api/persons', (request, response, next) => {
 
 app.get('/info', (request, response) => {
   let date = new Date()
-  let res = `<p>Phonebook has info for ${persons.length} people</p> <p>${date}</p>`
-  response.send(res)
+  Person.find({}).then(persons => {
+    let len = persons.length
+    let res = `<p>Phonebook has info for ${len} people</p> <p>${date}</p>`
+    response.send(res)
+  })
+  .catch(error => next(error))
+
+  //let res = `<p>Phonebook has info for ${len} people</p> <p>${date}</p>`
 })
 
-app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = persons.find(person => person.id === id)
-
-  if (person) {
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id).then(person => {
     response.json(person)
-  } else {
-    response.status(404).end()
-  }
+  })
+  .catch(error => next(error))
 
 })
 
@@ -42,6 +44,19 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .then(result => {
       response.status(204).end()
     })
+    .catch(error => next(error))
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const person = new Person({
+    name: request.body.name,
+    number: request.body.number,
+  })
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  .then(updatedPerson => {
+    response.json(updatedPerson)
+  })
     .catch(error => next(error))
 })
 
@@ -58,12 +73,8 @@ app.post('/api/persons', (request, response, next) => {
       error: 'number is missing' 
     })
   }
-  /*
-  if (persons.filter(person => person.name === body.name).length !== 0) {
-    return response.status(400).json({ 
-      error: 'name must be unique' 
-    })
-  }*/
+
+  //if already in the DB --> put request
     
   const person = new Person({
     name: body.name,
