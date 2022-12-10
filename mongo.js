@@ -1,21 +1,9 @@
-const mongoose = require('mongoose')
-
 if (process.argv.length < 3) {
   console.log('Please provide the password as an argument: node mongo.js <password>')
   process.exit(1)
 }
 
-
 const password = process.argv[2]
-
-const url = `mongodb+srv://fullstack:${password}@cluster0.flaxw4g.mongodb.net/phonebook?retryWrites=true&w=majority`
-
-const phonebookSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-})
-
-const phonebook = mongoose.model('phonebook', phonebookSchema)
 
 if (process.argv.length === 5) {
 
