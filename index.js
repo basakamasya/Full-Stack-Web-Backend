@@ -72,15 +72,29 @@ app.post('/api/persons', (request, response, next) => {
     })
   }
     
-  const person = new Person({
-    name: body.name,
-    number: body.number,
-  })
+  //if already added appropriate status code and message
 
-  person.save().then(savedPerson => {
-    response.json(savedPerson)
+  Person.find({name: body.name})
+    .then((found) => {
+    if (found.length !== 0) {
+      return response.status(400).json({ 
+        error: `${body.name} is already added to phonebook` 
+    })
+  }
+  else {
+    const person = new Person({
+      name: body.name,
+      number: body.number,
+    })
+   
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(
+      error => next(error))
+  }
+
   })
-  .catch(error => next(error))
 })
 
 const unknownEndpoint = (request, response) => {
@@ -107,3 +121,5 @@ const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+//please note that the app works at port 8080, not 3001 due to fly.io configurations
